@@ -86,7 +86,17 @@ public final class IdentityContract implements ContractInterface {
      * @return the created asset
      */
     @Transaction(intent = Transaction.TYPE.SUBMIT)
-    public Identity CreateECIdentity(final Context ctx, final String context, final String id, final String controlledBy) {
+    public Identity CreateECIdentity(
+            final Context ctx,
+            final String context,
+            final String id,
+            final String controlledBy,
+            final String kty,
+            final String kid,
+            final String curve,
+            final String x,
+            final String y
+    ) {
         ChaincodeStub stub = ctx.getStub();
 
         if (IdentityExists(ctx, id)) {
@@ -94,7 +104,11 @@ public final class IdentityContract implements ContractInterface {
             System.out.println(errorMessage);
             throw new ChaincodeException(errorMessage, IdentityErrors.IDENTITY_ALREADY_EXISTS.toString());
         }
-        Identity identity = new Identity(context, id, controlledBy);
+        Identity identity = Identity.newECInstance(
+                context, id,
+                controlledBy, kty, "sig", curve,x, y, kid);
+
+
         String assetJSON = genson.serialize(identity);
         stub.putStringState(id, assetJSON);
         return identity;
