@@ -26,7 +26,7 @@ public final class Identity {
     private final String controlledBy;
 
     @Property()
-    private final Map<String, String> publicKeyJwk;
+    private final ECWrapper publicKeyJwk;
 
 
     @Property()
@@ -51,7 +51,7 @@ public final class Identity {
         return controlledBy;
     }
 
-    public Map<String, String> getPublicKeyJwk() {
+    public ECWrapper getPublicKeyJwk() {
         return publicKeyJwk;
     }
 
@@ -87,7 +87,7 @@ public final class Identity {
     public Identity(@JsonProperty("context") final String context,
                     @JsonProperty("id") final String id,
                     @JsonProperty("controlledBy") final String controlledBy,
-                    @JsonProperty("publicKeyJwk") final Map<String, String> publicKeyJwk ) {
+                    @JsonProperty("publicKeyJwk") final ECWrapper publicKeyJwk ) {
         this.context = context;
         this.id = id;
         this.controlledBy = controlledBy;
@@ -99,13 +99,8 @@ public final class Identity {
     }
 
     public static Identity newECInstance(String context, String id, String controlledBy, String kty, String use, String crv, String x, String y, String kid){
-        HashMap<String, String> publicKeyJwk = new HashMap<String, String>();
-        publicKeyJwk.put("kty", kty);
-        publicKeyJwk.put("use", use);
-        publicKeyJwk.put("crv", crv);
-        publicKeyJwk.put("x", x);
-        publicKeyJwk.put("y", y);
-        publicKeyJwk.put("kid", kid);
+        ECWrapper publicKeyJwk = new ECWrapper(kty, use, crv, kid, x, y);
+
         return new Identity(context, id, controlledBy, publicKeyJwk);
     }
 
@@ -142,7 +137,7 @@ public final class Identity {
     @Override
     public String toString() {
         return "Identity{" +
-                "@context='" + context + '\'' +
+                "context='" + context + '\'' +
                 ", id='" + id + '\'' +
                 ", controlledBy='" + controlledBy + '\'' +
                 ", publicKeyJwk=" + publicKeyJwk +
