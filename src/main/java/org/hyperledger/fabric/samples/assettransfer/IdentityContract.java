@@ -117,7 +117,7 @@ public final class IdentityContract implements ContractInterface {
 
 
 
-    /**
+     /**
      * Retrieves an asset with the specified ID from the ledger.
      *
      * @param ctx the transaction context
