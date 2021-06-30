@@ -52,6 +52,7 @@ public final class Identity {
 
 
 
+
     public Identity(@JsonProperty("context") final String context,
                     @JsonProperty("id") final String id,
                     @JsonProperty("controlledBy") final String controlledBy) {
@@ -124,6 +125,14 @@ public final class Identity {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + " [context=" + context + ", assetID=" + id + ", controlledBy="+ controlledBy + "]";
+        return "Identity{" +
+                "context='" + context + '\'' +
+                ", id='" + id + '\'' +
+                ", controlledBy='" + controlledBy + '\'' +
+                ", publicKeyJwk=" + publicKeyJwk +
+                ", issuedAt='" + issuedAt + '\'' +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", validTo='" + validTo + '\'' +
+                '}';
     }
 }
