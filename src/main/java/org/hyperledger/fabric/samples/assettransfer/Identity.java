@@ -5,6 +5,7 @@
 package org.hyperledger.fabric.samples.assettransfer;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import org.hyperledger.fabric.contract.annotation.DataType;
@@ -25,7 +26,7 @@ public final class Identity {
     private final String controlledBy;
 
     @Property()
-    private final HashMap<String, String> publicKeyJwk;
+    private final Map<String, String> publicKeyJwk;
 
 
     @Property()
@@ -50,7 +51,7 @@ public final class Identity {
         return controlledBy;
     }
 
-    public HashMap<String, String> getPublicKeyJwk() {
+    public Map<String, String> getPublicKeyJwk() {
         return publicKeyJwk;
     }
 
@@ -86,7 +87,7 @@ public final class Identity {
     public Identity(@JsonProperty("context") final String context,
                     @JsonProperty("id") final String id,
                     @JsonProperty("controlledBy") final String controlledBy,
-                    @JsonProperty("publicKeyJwk") final HashMap<String, String> publicKeyJwk ) {
+                    @JsonProperty("publicKeyJwk") final Map<String, String> publicKeyJwk ) {
         this.context = context;
         this.id = id;
         this.controlledBy = controlledBy;
@@ -141,7 +142,7 @@ public final class Identity {
     @Override
     public String toString() {
         return "Identity{" +
-                "context='" + context + '\'' +
+                "@context='" + context + '\'' +
                 ", id='" + id + '\'' +
                 ", controlledBy='" + controlledBy + '\'' +
                 ", publicKeyJwk=" + publicKeyJwk +
