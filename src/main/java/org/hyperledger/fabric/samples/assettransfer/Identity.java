@@ -50,6 +50,21 @@ public final class Identity {
         return controlledBy;
     }
 
+    public HashMap<String, String> getPublicKeyJwk() {
+        return publicKeyJwk;
+    }
+
+    public String getIssuedAt() {
+        return issuedAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getValidTo() {
+        return validTo;
+    }
 
 
 
