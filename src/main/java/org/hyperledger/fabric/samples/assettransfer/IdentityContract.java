@@ -5,7 +5,9 @@
 package org.hyperledger.fabric.samples.assettransfer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
@@ -54,9 +56,14 @@ public final class IdentityContract implements ContractInterface {
     public void InitLedger(final Context ctx) {
         ChaincodeStub stub = ctx.getStub();
 
+
+
         CreateIdentity(ctx, "http://www.lsdi.ufma.br/" ,"lsdi:identity:first", "lsdi:identity:first");
 
+
     }
+
+
 
     /**
      * Creates a new identity on the ledger.
@@ -65,7 +72,10 @@ public final class IdentityContract implements ContractInterface {
      * @return the created asset
      */
     @Transaction(intent = Transaction.TYPE.SUBMIT)
-    public Identity CreateIdentity(final Context ctx, final String context, final String id, final String controlledBy) {
+    public Identity CreateIdentity(final Context ctx,
+                                   final String context,
+                                   final String id,
+                                   final String controlledBy) {
         ChaincodeStub stub = ctx.getStub();
 
         if (IdentityExists(ctx, id)) {
@@ -73,7 +83,9 @@ public final class IdentityContract implements ContractInterface {
             System.out.println(errorMessage);
             throw new ChaincodeException(errorMessage, IdentityErrors.IDENTITY_ALREADY_EXISTS.toString());
         }
-        Identity identity = new Identity(context, id, controlledBy);
+
+        Identity identity = new Identity(context, id, controlledBy, null , null ,"active", null , null);
+
         String assetJSON = genson.serialize(identity);
         stub.putStringState(id, assetJSON);
         return identity;
@@ -93,9 +105,10 @@ public final class IdentityContract implements ContractInterface {
             final String controlledBy,
             final String kty,
             final String kid,
-            final String curve,
+            final String crv,
             final String x,
-            final String y
+            final String y,
+            final String... subArray
     ) {
         ChaincodeStub stub = ctx.getStub();
 
@@ -104,12 +117,27 @@ public final class IdentityContract implements ContractInterface {
             System.out.println(errorMessage);
             throw new ChaincodeException(errorMessage, IdentityErrors.IDENTITY_ALREADY_EXISTS.toString());
         }
-        Identity identity = Identity.newECInstance(
-                context, id,
-                controlledBy, kty, "sig", curve,x, y, kid);
 
+        HashMap<String, String> publicKeyJwk = new HashMap<>();
+        HashMap<String, String> subjectInfo = new HashMap<>();
+        String[] dates = Utils.getIssueAndExpiracyDate(1);
+
+        publicKeyJwk.put("kid", kid);
+        publicKeyJwk.put("kty", kty);
+        publicKeyJwk.put("crv", crv);
+        publicKeyJwk.put("x", x);
+        publicKeyJwk.put("y", y);
+
+        for (String s : subArray) {
+            String[] split = s.split(":");
+            subjectInfo.put(split[0], split[1]);
+        }
+
+
+        Identity identity = new Identity(context, id, controlledBy, publicKeyJwk, subjectInfo, "active", dates[0], dates[1]);
 
         String assetJSON = genson.serialize(identity);
+
         stub.putStringState(id, assetJSON);
         return identity;
     }
