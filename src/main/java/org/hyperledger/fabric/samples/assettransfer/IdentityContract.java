@@ -146,8 +146,62 @@ public final class IdentityContract implements ContractInterface {
 
 
 
+    /**
+     * Creates a new identity on the ledger. This method expects only ECKeys as key;
+     *
+     * @param ctx the transaction context
+     * @return the created asset
+     */
+    @Transaction(intent = Transaction.TYPE.SUBMIT)
+    public Identity CreateRSAIdentity(
+            final Context ctx,
+            final String... args
+//            final String context,
+//            final String id,
+//            final String controlledBy,
+//            final String kty,
+//            final String kid,
+//            final String e,
+//            final String alg,
+//            final String n,
+    ) {
 
-     /**
+        ChaincodeStub stub = ctx.getStub();
+
+        if (IdentityExists(ctx, args[1])) {
+            String errorMessage = String.format("Identity %s already exists", args[1]);
+            System.out.println(errorMessage);
+            throw new ChaincodeException(errorMessage, IdentityErrors.IDENTITY_ALREADY_EXISTS.toString());
+        }
+
+        HashMap<String, String> publicKeyJwk = new HashMap<>();
+        HashMap<String, String> subjectInfo = new HashMap<>();
+        String[] dates = Utils.getIssueAndExpiracyDate(1);
+
+        publicKeyJwk.put("kty", args[3]);
+        publicKeyJwk.put("kid", args[4]);
+        publicKeyJwk.put("e", args[5]);
+        publicKeyJwk.put("alg", args[6]);
+        publicKeyJwk.put("n", args[7]);
+
+        for (int i = 8; i < args.length; i++) {
+            String[] split = args[i].split(":");
+            subjectInfo.put(split[0], split[1]);
+        }
+
+
+        Identity identity = new Identity(args[0], args[1], args[2], publicKeyJwk, subjectInfo, "active", dates[0], dates[1]);
+
+        String assetJSON = genson.serialize(identity);
+
+        stub.putStringState(args[1], assetJSON);
+        return identity;
+    }
+
+
+
+
+    /**
      * Retrieves an asset with the specified ID from the ledger.
      *
      * @param ctx the transaction context
