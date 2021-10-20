@@ -101,16 +101,7 @@ public final class IdentityContract implements ContractInterface {
     public Identity CreateECIdentity(
             final Context ctx,
             final String... args
-//            final String context,
-//            final String id,
-//            final String controlledBy,
-//            final String kty,
-//            final String kid,
-//            final String crv,
-//            final String x,
-//            final String y,
-//            final String... subArray
-    ) {
+) {
 
         ChaincodeStub stub = ctx.getStub();
 
@@ -127,6 +118,7 @@ public final class IdentityContract implements ContractInterface {
         publicKeyJwk.put("kty", args[3]);
         publicKeyJwk.put("kid", args[4]);
         publicKeyJwk.put("crv", args[5]);
+        publicKeyJwk.put("use", "sig");
         publicKeyJwk.put("x", args[6]);
         publicKeyJwk.put("y", args[7]);
 
@@ -135,6 +127,8 @@ public final class IdentityContract implements ContractInterface {
             subjectInfo.put(split[0], split[1]);
         }
 
+
+        //todo(): fazer um verificação da assinatura
 
         Identity identity = new Identity(args[0], args[1], args[2], publicKeyJwk, subjectInfo, "active", dates[0], dates[1]);
 
@@ -147,7 +141,7 @@ public final class IdentityContract implements ContractInterface {
 
 
     /**
-     * Creates a new identity on the ledger. This method expects only ECKeys as key;
+     * Creates a new identity on the ledger. This method expects only RSAKeys as key;
      *
      * @param ctx the transaction context
      * @return the created asset
@@ -156,14 +150,6 @@ public final class IdentityContract implements ContractInterface {
     public Identity CreateRSAIdentity(
             final Context ctx,
             final String... args
-//            final String context,
-//            final String id,
-//            final String controlledBy,
-//            final String kty,
-//            final String kid,
-//            final String e,
-//            final String alg,
-//            final String n,
     ) {
 
         ChaincodeStub stub = ctx.getStub();
@@ -181,6 +167,7 @@ public final class IdentityContract implements ContractInterface {
         publicKeyJwk.put("kty", args[3]);
         publicKeyJwk.put("kid", args[4]);
         publicKeyJwk.put("e", args[5]);
+        publicKeyJwk.put("use", "sig");
         publicKeyJwk.put("alg", args[6]);
         publicKeyJwk.put("n", args[7]);
 
@@ -188,6 +175,8 @@ public final class IdentityContract implements ContractInterface {
             String[] split = args[i].split(":");
             subjectInfo.put(split[0], split[1]);
         }
+
+        //todo(): fazer um verificação da assinatura
 
 
         Identity identity = new Identity(args[0], args[1], args[2], publicKeyJwk, subjectInfo, "active", dates[0], dates[1]);
@@ -268,4 +257,26 @@ public final class IdentityContract implements ContractInterface {
 
         return response;
     }
+
+    @Transaction(intent = Transaction.TYPE.EVALUATE)
+    public String GetIdentitiesByController(final Context ctx, String controllerId) {
+        ChaincodeStub stub = ctx.getStub();
+
+        List<Identity> queryResults = new ArrayList<Identity>();
+
+
+        QueryResultsIterator<KeyValue> results = stub.getQueryResult("" +
+                "" +
+                "  SELECT org.hyperledger.fabric.samples.assettransfer.Identity" +
+                "  WHERE (controlledBy = "+ controllerId + " )  " +
+                "  ORDER BY [issuedAt] ");
+
+        for (KeyValue result: results) {
+            Identity identity = genson.deserialize(result.getStringValue(), Identity.class);
+            queryResults.add(identity);
+        }
+
+        return genson.serialize(queryResults);
+    }
+
 }
