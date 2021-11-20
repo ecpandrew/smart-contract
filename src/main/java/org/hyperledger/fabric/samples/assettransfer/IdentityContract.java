@@ -4,11 +4,21 @@
 
 package org.hyperledger.fabric.samples.assettransfer;
 
+
+import java.security.interfaces.ECPublicKey;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.nimbusds.jose.Algorithm;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.util.Base64URL;
+import netscape.javascript.JSObject;
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
@@ -44,7 +54,9 @@ public final class IdentityContract implements ContractInterface {
 
     private enum IdentityErrors {
         IDENTITY_NOT_FOUND,
-        IDENTITY_ALREADY_EXISTS
+        IDENTITY_ALREADY_EXISTS,
+        INVALID_SIGNATURE
+
     }
 
     /**
@@ -102,40 +114,92 @@ public final class IdentityContract implements ContractInterface {
             final Context ctx,
             final String... args
 ) {
-
+        String applicationContext   = args[0];
+        String identityIdentifier   = args[1];
+        String controllerIdentifier = args[2];
+        String kty                  = args[3];
+        String kid                  = args[4];
+        String crv                  = args[5];
+        String x                    = args[6];
+        String y                    = args[7];
+        String serializedSignature  = args[8];
+        Map<String, String> publicKeyJwk = new HashMap<>();
+        Map<String, String> subjectInfo  = new HashMap<>();
+        String[] dates = Utils.getIssueAndExpiracyDate(1);
         ChaincodeStub stub = ctx.getStub();
 
-        if (IdentityExists(ctx, args[1])) {
-            String errorMessage = String.format("Identity %s already exists", args[1]);
+        if (IdentityExists(ctx, identityIdentifier)) {
+            String errorMessage = String.format("Identity %s already exists", identityIdentifier);
             System.out.println(errorMessage);
             throw new ChaincodeException(errorMessage, IdentityErrors.IDENTITY_ALREADY_EXISTS.toString());
         }
-
-        HashMap<String, String> publicKeyJwk = new HashMap<>();
-        HashMap<String, String> subjectInfo = new HashMap<>();
-        String[] dates = Utils.getIssueAndExpiracyDate(1);
-
-        publicKeyJwk.put("kty", args[3]);
-        publicKeyJwk.put("kid", args[4]);
-        publicKeyJwk.put("crv", args[5]);
+        publicKeyJwk.put("kty", kty);
+        publicKeyJwk.put("kid", kid);
+        publicKeyJwk.put("crv", crv);
         publicKeyJwk.put("use", "sig");
-        publicKeyJwk.put("x", args[6]);
-        publicKeyJwk.put("y", args[7]);
+        publicKeyJwk.put("x", x);
+        publicKeyJwk.put("y", y);
 
         for (int i = 8; i < args.length; i++) {
             String[] split = args[i].split(":");
             subjectInfo.put(split[0], split[1]);
         }
 
+        boolean isRequestValid = false;
 
-        //todo(): fazer um verificação da assinatura
+        if(identityIdentifier.equals(controllerIdentifier)){
+            isRequestValid = true;
+        }else{
+            Identity controller = ReadIdentity(ctx, controllerIdentifier);
+            try {
+                isRequestValid = validateSignature(controller, serializedSignature);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                String errorMessage = String.format("Error parsing signature from %s", controllerIdentifier);
+                throw new ChaincodeException(errorMessage, IdentityErrors.INVALID_SIGNATURE.toString());
+            }
+        }
 
-        Identity identity = new Identity(args[0], args[1], args[2], publicKeyJwk, subjectInfo, "active", dates[0], dates[1]);
+        if (isRequestValid){
+            // accept new identity proposition
+            Identity identity = new Identity(
+                    applicationContext,
+                    identityIdentifier,
+                    controllerIdentifier, publicKeyJwk, subjectInfo, "active", dates[0], dates[1]);
 
-        String assetJSON = genson.serialize(identity);
+            String assetJSON = genson.serialize(identity);
+            stub.putStringState(identityIdentifier, assetJSON);
+            return identity;
+        }else{
+            String errorMessage = String.format("Signature from %s not valid!", controllerIdentifier);
+            System.out.println(errorMessage);
+            throw new ChaincodeException(errorMessage, IdentityErrors.INVALID_SIGNATURE.toString());
+        }
 
-        stub.putStringState(args[1], assetJSON);
-        return identity;
+    }
+
+    public boolean validateSignature(Identity controller, String serializedSignature) throws ParseException {
+
+        Map<String, String> controllerPublicKeyJwt = controller.getPublicKeyJwk();
+        Base64URL x = Base64URL.from(controllerPublicKeyJwt.get("x"));
+        Base64URL y = Base64URL.from(controllerPublicKeyJwt.get("y"));
+        ECKey controllerECKey = new ECKey(
+                Curve.parse(controllerPublicKeyJwt.get("crv")),
+                x,
+                y,
+                KeyUse.SIGNATURE,
+                null,
+                Algorithm.parse(controllerPublicKeyJwt.get("alg")),
+                controllerPublicKeyJwt.get("kid"),
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        JWSObject jwsObject = JWSObject.parse(serializedSignature);
+        return false;
+
     }
 
 
