@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.nimbusds.jose.Algorithm;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -153,7 +156,7 @@ public final class IdentityContract implements ContractInterface {
             Identity controller = ReadIdentity(ctx, controllerIdentifier);
             try {
                 isRequestValid = validateSignature(controller, serializedSignature);
-            } catch (ParseException e) {
+            } catch (ParseException | JOSEException e) {
                 e.printStackTrace();
                 String errorMessage = String.format("Error parsing signature from %s", controllerIdentifier);
                 throw new ChaincodeException(errorMessage, IdentityErrors.INVALID_SIGNATURE.toString());
@@ -178,8 +181,7 @@ public final class IdentityContract implements ContractInterface {
 
     }
 
-    public boolean validateSignature(Identity controller, String serializedSignature) throws ParseException {
-
+    public boolean validateSignature(Identity controller, String serializedSignature) throws ParseException, JOSEException {
         Map<String, String> controllerPublicKeyJwt = controller.getPublicKeyJwk();
         Base64URL x = Base64URL.from(controllerPublicKeyJwt.get("x"));
         Base64URL y = Base64URL.from(controllerPublicKeyJwt.get("y"));
@@ -191,15 +193,10 @@ public final class IdentityContract implements ContractInterface {
                 null,
                 Algorithm.parse(controllerPublicKeyJwt.get("alg")),
                 controllerPublicKeyJwt.get("kid"),
-                null,
-                null,
-                null,
-                null,
-                null);
-
+                null,null,null,null,null);
         JWSObject jwsObject = JWSObject.parse(serializedSignature);
-        return false;
-
+        JWSVerifier verifier = new ECDSAVerifier(controllerECKey.toECPublicKey());
+        return verifier.verify(jwsObject.getHeader(), jwsObject.getSigningInput(), jwsObject.getSignature());
     }
 
 
