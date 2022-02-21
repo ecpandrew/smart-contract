@@ -121,10 +121,11 @@ public final class IdentityContract implements ContractInterface {
         String controllerIdentifier = args[2];
         String kty                  = args[3];
         String kid                  = args[4];
-        String crv                  = args[5];
-        String x                    = args[6];
-        String y                    = args[7];
-        String serializedSignature  = args[8];
+        String alg                  = args[5];
+        String crv                  = args[6];
+        String x                    = args[7];
+        String y                    = args[8];
+        String serializedSignature  = args[9];
         Map<String, String> publicKeyJwk = new HashMap<>();
         Map<String, String> subjectInfo  = new HashMap<>();
         String[] dates = Utils.getIssueAndExpiracyDate(1);
@@ -137,12 +138,13 @@ public final class IdentityContract implements ContractInterface {
         }
         publicKeyJwk.put("kty", kty);
         publicKeyJwk.put("kid", kid);
+        publicKeyJwk.put("alg", alg);
         publicKeyJwk.put("crv", crv);
         publicKeyJwk.put("use", "sig");
         publicKeyJwk.put("x", x);
         publicKeyJwk.put("y", y);
 
-        for (int i = 8; i < args.length; i++) {
+        for (int i = 10; i < args.length; i++) {
             String[] split = args[i].split(":");
             subjectInfo.put(split[0], split[1]);
         }
@@ -311,7 +313,6 @@ public final class IdentityContract implements ContractInterface {
         for (KeyValue result: results) {
             Identity identity = genson.deserialize(result.getStringValue(), Identity.class);
             queryResults.add(identity);
-            System.out.println(identity.toString());
         }
 
         final String response = genson.serialize(queryResults);
