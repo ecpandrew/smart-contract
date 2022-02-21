@@ -72,7 +72,6 @@ public final class IdentityContract implements ContractInterface {
         ChaincodeStub stub = ctx.getStub();
 
 
-
         CreateIdentity(ctx, "http://www.lsdi.ufma.br/" ,"lsdi:identity:first", "lsdi:identity:first");
 
 
@@ -270,6 +269,7 @@ public final class IdentityContract implements ContractInterface {
         }
 
         Identity identity = genson.deserialize(identityJSON, Identity.class);
+
         return identity;
     }
 
