@@ -153,6 +153,9 @@ public final class IdentityContract implements ContractInterface {
 
         if(identityIdentifier.equals(controllerIdentifier)){
             isRequestValid = true;
+
+            //todo(): validar a assinatura
+
         }else{
             Identity controller = ReadIdentity(ctx, controllerIdentifier);
             try {
