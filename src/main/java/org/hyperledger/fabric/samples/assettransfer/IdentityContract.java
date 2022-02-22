@@ -144,7 +144,7 @@ public final class IdentityContract implements ContractInterface {
         publicKeyJwk.put("x", x);
         publicKeyJwk.put("y", y);
 
-        for (int i = 9; i < args.length; i++) { // incremento é antes
+        for (int i = 10; i < args.length; i++) { // incremento é antes
             String[] split = args[i].split(":");
             subjectInfo.put(split[0], split[1]);
         }

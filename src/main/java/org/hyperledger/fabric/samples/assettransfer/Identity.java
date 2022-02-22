@@ -20,7 +20,7 @@ public final class Identity {
     private final String context;
 
     @Property()
-    private final String id;
+    private final String identifier;
 
     @Property()
     private final String controlledBy;
@@ -40,8 +40,8 @@ public final class Identity {
     @Property()
     private final String status;
 
-    public String getId() {
-        return id;
+    public String getIdentifier() {
+        return identifier;
     }
 
     public String getContext() {
@@ -75,7 +75,7 @@ public final class Identity {
     }
 
     public Identity(@JsonProperty("context") final String context,
-                    @JsonProperty("id") final String id,
+                    @JsonProperty("identifier") final String identifier,
                     @JsonProperty("controlledBy") final String controlledBy,
                     @JsonProperty("publicKeyJwk") final Map<String, String> publicKeyJwk,
                     @JsonProperty("subjectInfo") final Map<String, String> subjectInfo,
@@ -83,7 +83,7 @@ public final class Identity {
                     @JsonProperty("issuedAt") final String issuedAt,
                     @JsonProperty("validTo") final String validTo) {
         this.context = context;
-        this.id = id;
+        this.identifier = identifier;
         this.controlledBy = controlledBy;
         this.publicKeyJwk = publicKeyJwk;
         this.subjectInfo = subjectInfo;
@@ -107,35 +107,44 @@ public final class Identity {
 //        return new Identity(context, id, controlledBy, publicKey,"", issuedAt, validTo);
 //    }
 
-
-
-
-
-
-
-
     @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if ((obj == null) || (getClass() != obj.getClass())) {
-            return false;
-        }
-
-        Identity other = (Identity) obj;
-
-        return Objects.deepEquals(
-                new String[] {getContext(),getId(),getControlledBy()},
-                new String[] {other.getContext(),other.getId(),other.getControlledBy()});
-
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Identity identity = (Identity) o;
+        return context.equals(identity.context) && identifier.equals(identity.identifier) && controlledBy.equals(identity.controlledBy) && publicKeyJwk.equals(identity.publicKeyJwk) && subjectInfo.equals(identity.subjectInfo) && issuedAt.equals(identity.issuedAt) && validTo.equals(identity.validTo) && status.equals(identity.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return Objects.hash(identifier);
     }
+
+
+//    @Override
+//    public boolean equals(final Object obj) {
+//        if (this == obj) {
+//            return true;
+//        }
+//
+//        if ((obj == null) || (getClass() != obj.getClass())) {
+//            return false;
+//        }
+//
+//        Identity other = (Identity) obj;
+//
+//        return Objects.deepEquals(
+//                new String[] {getContext(),getIdentifier(),getControlledBy()},
+//                new String[] {other.getContext(),other.getIdentifier(),other.getControlledBy()});
+//
+//    }
+//
+//
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(getIdentifier());
+//    }
 
 
 }
