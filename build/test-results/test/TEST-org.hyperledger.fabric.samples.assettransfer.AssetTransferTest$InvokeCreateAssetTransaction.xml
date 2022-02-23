@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.hyperledger.fabric.samples.assettransfer.AssetTransferTest$InvokeCreateAssetTransaction" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-02-23T13:48:03" hostname="DESKTOP-CR6CJMQ" time="0.803">
+  <properties/>
+  <testcase name="whenAssetExists()" classname="org.hyperledger.fabric.samples.assettransfer.AssetTransferTest$InvokeCreateAssetTransaction" time="0.803"/>
+  <system-out><![CDATA[Ola mundo
+{"context":"http://lsdi.ufma.br","controlledBy":"lsdi:ufma:br/entity-manager/1","identifier":"lsdi:ufma:br/entity-manager/1","issuedAt":"Wed Feb 23 10:48:04 BRT 2022","publicKeyJwk":{"kty":"EC","crv":"P-256","use":"sig","kid":"entity-manager-1","x":"LZUHQnp8iCbiKtWKYqOgJlAUG7Ky8oABcNPDLrU49Pg","y":"V2t-TERnzd2ErA48kOYImzrdmSahAepHrGRETMISiSc","alg":"ES256"},"status":"active","subjectInfo":{"nome":"LSDi- Entity Manager 1","coordenador":"fssilva","mantenedor":"andrecardoso","descricao":"Gerenciador de identidades de dispositivos do LSDi"},"validTo":"Thu Feb 23 10:48:04 BRT 2023"}
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

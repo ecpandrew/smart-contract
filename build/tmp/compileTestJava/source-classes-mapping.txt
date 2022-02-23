@@ -1,0 +1,5 @@
+org/hyperledger/fabric/samples/assettransfer/AssetTransferTest.java
+ org.hyperledger.fabric.samples.assettransfer.AssetTransferTest
+ org.hyperledger.fabric.samples.assettransfer.AssetTransferTest$InvokeCreateAssetTransaction
+ org.hyperledger.fabric.samples.assettransfer.AssetTransferTest$MockAssetResultsIterator
+ org.hyperledger.fabric.samples.assettransfer.AssetTransferTest$MockKeyValue
