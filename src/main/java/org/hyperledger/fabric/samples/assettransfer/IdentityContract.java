@@ -119,6 +119,11 @@ public final class IdentityContract implements ContractInterface {
             final Context ctx,
             final String... args
 ) {
+     if(true){
+         String errorMessage = "Identity testando";
+         System.out.println(errorMessage);
+         throw new ChaincodeException(errorMessage, IdentityErrors.IDENTITY_ALREADY_EXISTS.toString());
+     }
         ChaincodeStub stub = ctx.getStub();
 
         String applicationContext   = args[0];

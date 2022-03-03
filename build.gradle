@@ -17,6 +17,7 @@ dependencies {
     compileOnly 'org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.+'
     implementation 'com.owlike:genson:1.5'
     implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '9.10.1'
+// https://mvnrepository.com/artifact/org.json/json
 
     testImplementation 'org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.+'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
