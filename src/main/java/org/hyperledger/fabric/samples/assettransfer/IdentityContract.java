@@ -130,7 +130,7 @@ public final class IdentityContract implements ContractInterface {
         Map<String, String> subjectInfo  = new HashMap<>();
         String[] dates = Utils.getIssueAndExpiracyDate(1);
         ChaincodeStub stub = ctx.getStub();
-        System.out.println("Ola mundo");
+
         if (IdentityExists(ctx, identityIdentifier)) {
             String errorMessage = String.format("Identity %s already exists", identityIdentifier);
             System.out.println(errorMessage);
@@ -174,9 +174,14 @@ public final class IdentityContract implements ContractInterface {
                     identityIdentifier,
                     controllerIdentifier, publicKeyJwk, subjectInfo, "active", dates[0], dates[1]);
 
+            // converter pra jsonarray
+
             String assetJSON = genson.serialize(identity);
-            System.out.println(assetJSON);
+
+            System.out.println("debug: "+assetJSON);
+
             stub.putStringState(identityIdentifier, assetJSON);
+
             return identity;
         }else{
             String errorMessage = String.format("Signature from %s not valid!", controllerIdentifier);
