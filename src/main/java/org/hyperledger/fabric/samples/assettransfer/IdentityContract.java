@@ -71,8 +71,12 @@ public final class IdentityContract implements ContractInterface {
     public void InitLedger(final Context ctx) {
         ChaincodeStub stub = ctx.getStub();
 
-
-        CreateIdentity(ctx, "http://www.lsdi.ufma.br/" ,"lsdi:identity:first", "lsdi:identity:first");
+        Identity identity = new Identity(
+                "http://www.lsdi.ufma.br/" ,
+                "lsdi:identity:first",
+                "lsdi:identity:first",
+                null, null, null, null, null);
+        CreateIdentity(ctx, identity);
 
 
     }
@@ -87,21 +91,19 @@ public final class IdentityContract implements ContractInterface {
      */
     @Transaction(intent = Transaction.TYPE.SUBMIT)
     public Identity CreateIdentity(final Context ctx,
-                                   final String context,
-                                   final String id,
-                                   final String controlledBy) {
+                                   Identity identity) {
         ChaincodeStub stub = ctx.getStub();
 
-        if (IdentityExists(ctx, id)) {
-            String errorMessage = String.format("Identity %s already exists", id);
+        if (IdentityExists(ctx, identity.getIdentifier())) {
+            String errorMessage = String.format("Identity %s already exists", identity.getIdentifier());
             System.out.println(errorMessage);
             throw new ChaincodeException(errorMessage, IdentityErrors.IDENTITY_ALREADY_EXISTS.toString());
         }
 
-        Identity identity = new Identity(context, id, controlledBy, null , null ,"active", null , null);
+
 
         String assetJSON = genson.serialize(identity);
-        stub.putStringState(id, assetJSON);
+        stub.putStringState(identity.getIdentifier(), assetJSON);
         return identity;
     }
 
@@ -116,6 +118,8 @@ public final class IdentityContract implements ContractInterface {
             final Context ctx,
             final String... args
 ) {
+        ChaincodeStub stub = ctx.getStub();
+
         String applicationContext   = args[0];
         String identityIdentifier   = args[1];
         String controllerIdentifier = args[2];
@@ -129,13 +133,13 @@ public final class IdentityContract implements ContractInterface {
         Map<String, String> publicKeyJwk = new HashMap<>();
         Map<String, String> subjectInfo  = new HashMap<>();
         String[] dates = Utils.getIssueAndExpiracyDate(1);
-        ChaincodeStub stub = ctx.getStub();
 
         if (IdentityExists(ctx, identityIdentifier)) {
             String errorMessage = String.format("Identity %s already exists", identityIdentifier);
             System.out.println(errorMessage);
             throw new ChaincodeException(errorMessage, IdentityErrors.IDENTITY_ALREADY_EXISTS.toString());
         }
+
         publicKeyJwk.put("kty", kty);
         publicKeyJwk.put("kid", kid);
         publicKeyJwk.put("alg", alg);
@@ -175,12 +179,12 @@ public final class IdentityContract implements ContractInterface {
                     controllerIdentifier, null, null, "active", dates[0], dates[1]);
 
             // converter pra jsonarray
-
-            String assetJSON = genson.serialize(identity);
-
-            System.out.println("debug: "+assetJSON);
-
-            stub.putStringState(identityIdentifier, assetJSON);
+            CreateIdentity(ctx, identity);
+//            String assetJSON = genson.serialize(identity);
+//
+//            System.out.println("debug: "+assetJSON);
+//
+//            stub.putStringState(identityIdentifier, assetJSON);
 
             return identity;
         }else{
