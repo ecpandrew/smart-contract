@@ -172,7 +172,7 @@ public final class IdentityContract implements ContractInterface {
             Identity identity = new Identity(
                     applicationContext,
                     identityIdentifier,
-                    controllerIdentifier, publicKeyJwk, subjectInfo, "active", dates[0], dates[1]);
+                    controllerIdentifier, null, null, "active", dates[0], dates[1]);
 
             // converter pra jsonarray
 
