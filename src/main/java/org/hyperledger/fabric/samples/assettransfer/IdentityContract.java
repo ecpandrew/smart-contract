@@ -116,11 +116,11 @@ public final class IdentityContract implements ContractInterface {
      */
     @Transaction(intent = Transaction.TYPE.SUBMIT)
     public Identity CreateECIdentity(
-            final Context ctx,
-            final String... args
+            final Context ctx
 ) {
-     if(true){
-         String errorMessage = "Identity testando";
+     String[] args = ctx.getStub().getParameters().toArray(new String[0]);
+     if("CreateECIdentity".equals(args[0])){
+         String errorMessage = "Identity testando "+ args[0];
          System.out.println(errorMessage);
          throw new ChaincodeException(errorMessage, IdentityErrors.IDENTITY_ALREADY_EXISTS.toString());
      }
