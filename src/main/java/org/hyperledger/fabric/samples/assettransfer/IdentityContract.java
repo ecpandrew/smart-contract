@@ -76,6 +76,7 @@ public final class IdentityContract implements ContractInterface {
                 "lsdi:identity:first",
                 "lsdi:identity:first",
                 null, null, null, null, null);
+
         CreateIdentity(ctx, identity);
 
 
@@ -91,7 +92,7 @@ public final class IdentityContract implements ContractInterface {
      */
     @Transaction(intent = Transaction.TYPE.SUBMIT)
     public Identity CreateIdentity(final Context ctx,
-                                   Identity identity) {
+                                   final Identity identity) {
         ChaincodeStub stub = ctx.getStub();
 
         if (IdentityExists(ctx, identity.getIdentifier())) {
