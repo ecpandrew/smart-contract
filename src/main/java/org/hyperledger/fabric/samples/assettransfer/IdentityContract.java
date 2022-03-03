@@ -117,7 +117,7 @@ public final class IdentityContract implements ContractInterface {
     @Transaction(intent = Transaction.TYPE.SUBMIT)
     public Identity CreateECIdentity(
             final Context ctx
-) {
+) throws ParseException, JOSEException {
      String[] args = ctx.getStub().getParameters().toArray(new String[0]);
      if("CreateECIdentity".equals(args[0])){
          String errorMessage = "Identity testando "+ args[0];
@@ -161,10 +161,15 @@ public final class IdentityContract implements ContractInterface {
 
         boolean isRequestValid = false;
 
+        Identity identity = new Identity(
+                applicationContext,
+                identityIdentifier,
+                controllerIdentifier, publicKeyJwk, subjectInfo, "active", dates[0], dates[1]);
+
+
         if(identityIdentifier.equals(controllerIdentifier)){
             isRequestValid = true;
-
-            //todo(): validar a assinatura
+            validateSignature(identity, serializedSignature);
 
         }else{
             Identity controller = ReadIdentity(ctx, controllerIdentifier);
@@ -179,18 +184,11 @@ public final class IdentityContract implements ContractInterface {
 
         if (isRequestValid){
             // accept new identity proposition
-            Identity identity = new Identity(
-                    applicationContext,
-                    identityIdentifier,
-                    controllerIdentifier, null, null, "active", dates[0], dates[1]);
 
             // converter pra jsonarray
-            CreateIdentity(ctx, identity);
-//            String assetJSON = genson.serialize(identity);
-//
-//            System.out.println("debug: "+assetJSON);
-//
-//            stub.putStringState(identityIdentifier, assetJSON);
+            String assetJSON = genson.serialize(identity);
+            System.out.println("debug: "+assetJSON);
+            stub.putStringState(identityIdentifier, assetJSON);
 
             return identity;
         }else{
